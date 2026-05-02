@@ -563,14 +563,13 @@ elif section == "Diagnostics":
 
     if st.button("▶ Run All Checks", type="primary"):
         log = []
-        passed = failed = 0
+        counts = {"passed": 0, "failed": 0}
 
         def check(label, condition, detail=""):
-            nonlocal passed, failed
             if condition:
-                log.append(("pass", label, detail)); passed += 1
+                log.append(("pass", label, detail)); counts["passed"] += 1
             else:
-                log.append(("fail", label, detail or "Assertion failed")); failed += 1
+                log.append(("fail", label, detail or "Assertion failed")); counts["failed"] += 1
 
         with st.spinner("Running diagnostics…"):
             time.sleep(0.4)
@@ -626,6 +625,8 @@ elif section == "Diagnostics":
             check("Explored set is stored as a set", isinstance(st.session_state.explored, set))
             check("Wiki cache is stored as a dict", isinstance(st.session_state.wiki_cache, dict))
 
+        passed = counts["passed"]
+        failed = counts["failed"]
         st.session_state.diag_log = log
         st.markdown('<hr class="rule">', unsafe_allow_html=True)
 
