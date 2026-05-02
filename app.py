@@ -2,67 +2,89 @@ import streamlit as st
 
 st.set_page_config(page_title="Election Assistant", layout="wide")
 
+if "history" not in st.session_state:
+    st.session_state.history = []
+
 st.title("Election Process Assistant")
 
-section = st.sidebar.radio("Go to", ["Home", "Process", "Timeline", "Interactive Guide"])
+section = st.sidebar.radio("Navigate", ["Overview", "Process", "Timeline", "Simulator", "Ask"])
 
-if section == "Home":
-    st.header("Understand Elections Simply")
-    st.write("This assistant helps you explore how elections work, step by step, along with timelines and key concepts.")
-    st.write("Use the sidebar to navigate different sections.")
+data = {
+    "Announcement": "Election schedule is released officially.",
+    "Nomination": "Candidates submit required documents.",
+    "Scrutiny": "Authorities verify eligibility.",
+    "Campaign": "Candidates reach out to voters.",
+    "Polling": "Citizens vote.",
+    "Counting": "Votes are tallied.",
+    "Result": "Winner is declared."
+}
+
+if section == "Overview":
+    st.header("Overview")
+    st.write("This assistant explains elections interactively.")
+    st.progress(len(st.session_state.history) / 10 if st.session_state.history else 0)
 
 elif section == "Process":
-    st.header("Election Process")
+    st.header("Steps")
 
-    steps = {
-        "Announcement": "Election dates and details are officially declared.",
-        "Nomination": "Candidates file their applications.",
-        "Scrutiny": "Verification of candidate eligibility.",
-        "Campaigning": "Candidates promote their agendas.",
-        "Polling": "Citizens cast their votes.",
-        "Counting": "Votes are counted.",
-        "Result": "Winners are announced."
-    }
+    cols = st.columns(3)
+    keys = list(data.keys())
 
-    choice = st.selectbox("Select a step", list(steps.keys()))
-    st.subheader(choice)
-    st.write(steps[choice])
+    for i, step in enumerate(keys):
+        with cols[i % 3]:
+            if st.button(step):
+                st.session_state.history.append(step)
+                st.success(data[step])
 
 elif section == "Timeline":
-    st.header("Election Timeline")
+    st.header("Timeline")
 
-    col1, col2 = st.columns(2)
+    phases = ["Announcement", "Nomination", "Campaign", "Polling", "Result"]
+    selected = st.select_slider("Flow", options=phases)
 
-    with col1:
-        st.metric("Phase 1", "Announcement")
-        st.metric("Phase 2", "Nomination")
-
-    with col2:
-        st.metric("Phase 3", "Campaigning")
-        st.metric("Phase 4", "Voting & Results")
-
-    st.progress(75)
-
-elif section == "Interactive Guide":
-    st.header("Ask Anything About Elections")
-
-    user_input = st.text_input("Enter your question")
-
-    def get_response(q):
-        q = q.lower()
-
-        if "vote" in q or "voting" in q:
-            return "Voting is when eligible citizens select their preferred candidate."
-        elif "candidate" in q:
-            return "Candidates are individuals contesting to represent the public."
-        elif "timeline" in q:
-            return "An election typically moves from announcement to results over several weeks."
-        elif "process" in q or "steps" in q:
-            return "The process includes nomination, campaigning, polling, counting, and results."
-        elif "commission" in q:
-            return "The Election Commission oversees and ensures fair elections."
+    for p in phases:
+        if phases.index(p) <= phases.index(selected):
+            st.write("✓ " + p)
         else:
-            return "Try asking about voting, candidates, process, or timeline."
+            st.write("• " + p)
 
-    if user_input:
-        st.write(get_response(user_input))
+elif section == "Simulator":
+    st.header("Voting Simulation")
+
+    voters = st.number_input("Number of voters", min_value=1, max_value=1000, value=10)
+    candidates = st.text_input("Candidates (comma separated)", "A,B,C")
+
+    if st.button("Run Simulation"):
+        import random
+        c = [x.strip() for x in candidates.split(",") if x.strip()]
+        result = {i: 0 for i in c}
+
+        for _ in range(voters):
+            result[random.choice(c)] += 1
+
+        winner = max(result, key=result.get)
+
+        st.write(result)
+        st.success("Winner: " + winner)
+
+elif section == "Ask":
+    st.header("Ask")
+
+    q = st.text_input("Your question")
+
+    def respond(x):
+        x = x.lower()
+        if "vote" in x:
+            return "Voting is the act of choosing a representative."
+        if "candidate" in x:
+            return "Candidates are contesting individuals."
+        if "timeline" in x:
+            return "It moves from announcement to results."
+        if "process" in x:
+            return "Nomination, campaign, polling, counting, result."
+        return "Ask about voting, process, or timeline."
+
+    if q:
+        ans = respond(q)
+        st.session_state.history.append(q)
+        st.write(ans)
