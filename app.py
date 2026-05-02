@@ -15,9 +15,11 @@ st.set_page_config(
 )
 
 # ── Design System ──────────────────────────────────────────────────────────────
-st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
+st.markdown(
+    '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">',
+    unsafe_allow_html=True,
+)
+st.markdown("""<style>
 :root {
   --ink:     #0d0f14;
   --paper:   #f5f0e8;
@@ -159,9 +161,8 @@ section[data-testid="stSidebar"] .stRadio > label {
 .sidebar-tagline { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent) !important; margin-bottom: 24px; }
 
 .rule { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-</style>
-<a class="skip-link" href="#main-content">Skip to main content</a>
-""", unsafe_allow_html=True)
+</style>""", unsafe_allow_html=True)
+st.markdown('<a class="skip-link" href="#main-content">Skip to main content</a>', unsafe_allow_html=True)
 
 # ── Session State ──────────────────────────────────────────────────────────────
 for k, v in {
